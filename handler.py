@@ -2,6 +2,14 @@ import json
 from botocore.vendored import requests
 from bs4 import BeautifulSoup
 
+import boto3
+#import StringIO
+
+def save_to_s3(bucket_ref, file, data):
+    s3 = boto3.resource('s3')
+    obj = s3.Object(bucket_ref, file)
+    obj.put(Body=json.dumps(data))
+
 def hello(event, context):
 
     if event.get('url'):
@@ -19,6 +27,16 @@ def hello(event, context):
         "url": url,
         "title": str(tags)
     }
+
+    # saving to s3
+    #output = StringIO.StringIO()
+    output = ''
+    for k, v in body.items():
+        #output.write(k + ' : ' + v + '.\n')
+        output += k + ' : ' + v + '.\n'
+
+    save_to_s3('bucket.test.ale',url,output)
+
 
     response = {
         "statusCode": 200,
